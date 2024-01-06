@@ -6,6 +6,7 @@ const {Server} = require('socket.io');
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const multer = require("multer");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors())
@@ -22,11 +23,11 @@ server.listen(PORT, () => {
 //     res.send("<></>");
 // })
 const connection_string = "mongodb+srv://hoang:hoang@cluster0.cinin9p.mongodb.net/UserDB?retryWrites=true&w=majority"
-
+mongoose.set('strictQuery', false);
 mongoose
     .connect(connection_string, {
         useNewUrlParser: true,
-        useUnifiedTopology: true,
+        useUnifiedTopology: true
     })
     .then(() => console.log("DB Connection Successful!"))
     .catch((err) => {
@@ -234,7 +235,7 @@ app.post("/authentication", async (req, res) => {
 app.post("/authenticationemail", async (req, res) => {
     try {
         const email = req.body.email;
-        console.log(email + password);
+        console.log(email);
         const user = await users.findOne({email});
         if (user != null) {
             res.status(200).send(user);
@@ -249,7 +250,7 @@ app.post("/authenticationemail", async (req, res) => {
 // 3. Profile: => image, name, age, interest, program
 //done
 // SEARCH USER, PREFERENCES BY THEIR EMAILS
-app.post("/getProfile/:email", async (req, res) => {
+app.get("/getProfile/:email", async (req, res) => {
     try {
         const email = req.params.email;
         console.log(email);
@@ -321,12 +322,14 @@ app.put('/updateUserProfile/:email', async (req, res) => {
 app.put('/updateUserLocation/:email', async (req, res) => {
     try {
         const email = req.params.email;
-        const latitute = req.body.latitute;
+        const latitude = req.body.latitude;
         const longitude = req.body.longitude;
+
+        console.log(latitude);
 
         // const found_user = users.findOne({ name: userName });
         const updated_user = await users.findOneAndUpdate({ email }, {
-            latitute,
+            latitude,
             longitude,
         }, { new: false },);
         if (updated_user != null) {
@@ -350,14 +353,13 @@ app.get('/findMates/:email', async (req, res) => {
     try {
         const email = req.params.email;
         const found_preference = await preferences.findOne({email});
-
         if (found_preference != null) {
             const matched_partner = found_preference.partner;
             const matched_program = found_preference.program;
             const matched_interest = found_preference.interest;
             const matched_age = found_preference.age;
             const mates = [];
-            const arrayIds = await preferences.find({partner: matched_partner, age: matched_age, program: matched_program, interest: matched_interest});
+            const arrayIds = await preferences.find({ partner: matched_partner, age: matched_age, program: matched_program, interest: matched_interest, });
             if(arrayIds.length != 0){
                 arrayIds.map(async (m) => {
                     const mate = await users.findOne({ email: m.email });
@@ -373,9 +375,8 @@ app.get('/findMates/:email', async (req, res) => {
                         });
                         await match.save();
                     };
-
+                    res.status(200).send(mates);
                 });
-                res.status(200).send(mates);
             }else{
                 res.status(404).send("Not Found!");
             }
@@ -392,14 +393,15 @@ app.get('/findMates/:email', async (req, res) => {
 app.get('/findMatches/:email', async (req, res) => {
     try {
         const email = req.params.email;
-        const foundMatches = await matches.findOne({ participants: { $elemMatch: { $eq: email } } });
+        const foundMatches = await matches.find({ participants: { $elemMatch: { $eq: email } } });
+        console.log(foundMatches);
         if (foundMatches != null) {
             const realMatches = [];
-            foundMatches.forEach(m => {
+            foundMatches.map(m => {
                 if(m.status.length == 2){
-                    realMatches.push(m);
+                    realMatches.push(m)
                 }
-            });
+            })
             res.status(200).send(realMatches);
         } else {
             res.status(404).send("Not Found!");
@@ -412,7 +414,7 @@ app.get('/findMatches/:email', async (req, res) => {
 //done
 //SEARCH FOR MATCH THAT CONTAIN BOTH EMAIL OF MATE AND USER THEN PUSH "OK" STATUS INTO THE STATUS ARRAY ATTRIBUTE
 // IF ITS LENGTH IS SMALLER THAN 2.
-app.get('/matches', async (req, res) => {
+app.post('/matches', async (req, res) => {
     try {
         const oemail = req.body.oemail;
         const email = req.body.email;
@@ -424,6 +426,7 @@ app.get('/matches', async (req, res) => {
                 const updated_match = await matches.findOneAndUpdate({ participants: { $elemMatch: { $eq: oemail, $eq: email } } }, {
                     status: newStatus,
                 }, { new: false },);
+                res.status(200).send("Updated Status");
             }else{
                 res.status(200).send("Match!");
             }
