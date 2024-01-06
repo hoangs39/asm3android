@@ -83,7 +83,6 @@ const userSchema = new mongoose.Schema({
     },
     age: {
         type: String,
-        unique: true,
     },
 })
 
@@ -188,10 +187,27 @@ app.post('/register', upload.single("image"), async (req, res) => {
             password,
             description,
             gender,
-            //     avatarImg: {
+            // avatarImg: {
             //         data: req.file.buffer,
             //         contentType: req.file.mimetype,
-            //     },
+            // },
+            status,
+            latitude,
+            longitude,
+            age,
+        })
+        console.log({
+            email,
+            phone,
+            name,
+            role,
+            password,
+            description,
+            gender,
+            // avatarImg: {
+            //     data: req.file.buffer,
+            //     contentType: req.file.mimetype,
+            // },
             status,
             latitude,
             longitude,
