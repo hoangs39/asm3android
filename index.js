@@ -187,10 +187,10 @@ app.post('/register', upload.single("image"), async (req, res) => {
             password,
             description,
             gender,
-            // avatarImg: {
-            //         data: req.file.buffer,
-            //         contentType: req.file.mimetype,
-            // },
+            avatarImg: {
+                    data: req.file.buffer,
+                    contentType: req.file.mimetype,
+            },
             status,
             latitude,
             longitude,
@@ -204,10 +204,10 @@ app.post('/register', upload.single("image"), async (req, res) => {
             password,
             description,
             gender,
-            // avatarImg: {
-            //     data: req.file.buffer,
-            //     contentType: req.file.mimetype,
-            // },
+            avatarImg: {
+                data: req.file.buffer,
+                contentType: req.file.mimetype,
+            },
             status,
             latitude,
             longitude,
