@@ -49,18 +49,16 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        required: true,
     },
     password: {
         type: String,
-        required: true,
     },
     description: {
         type: String,
     },
     gender: {
         type: String,
-        enum: ["male", "female", "surprise"],
+        enum: ["Male", "Female", "Non-binary"],
         default: "surprise",
     },
     avatarImg: {
@@ -74,11 +72,9 @@ const userSchema = new mongoose.Schema({
     },
     latitude: {
         type: String,
-        required: true,
     },
     longitude : {
         type: String,
-        required: true,
     },
     age: {
         type: String,
@@ -98,8 +94,8 @@ const preferenceSchema = new mongoose.Schema({
     },
     partner: {
         type: String,
-        enum: ["male", "female", "surprise"],
-        default: "male",
+        enum: ["Male", "Female", "Surprise me"],
+        default: "Surprise me",
     },
     interest: {
         type: String,
@@ -186,10 +182,10 @@ app.post('/register', upload.single("image"), async (req, res) => {
             password,
             description,
             gender,
-            avatarImg: {
-                    data: req.file.buffer,
-                    contentType: req.file.mimetype,
-            },
+            // avatarImg: {
+            //         data: req.file.buffer,
+            //         contentType: req.file.mimetype,
+            // },
             status,
             latitude,
             longitude,
@@ -203,10 +199,10 @@ app.post('/register', upload.single("image"), async (req, res) => {
             password,
             description,
             gender,
-            avatarImg: {
-                data: req.file.buffer,
-                contentType: req.file.mimetype,
-            },
+            // avatarImg: {
+            //     data: req.file.buffer,
+            //     contentType: req.file.mimetype,
+            // },
             status,
             latitude,
             longitude,
@@ -265,9 +261,9 @@ app.post("/authenticationemail", async (req, res) => {
 // 3. Profile: => image, name, age, interest, program
 //done
 // SEARCH USER, PREFERENCES BY THEIR EMAILS
-app.get("/getProfile/:email", async (req, res) => {
+app.post("/getProfile", async (req, res) => {
     try {
-        const email = req.params.email;
+        const email = req.body.email;
         console.log(email);
         const user = await users.findOne({ email});
         const preference = await preferences.findOne({ email });
