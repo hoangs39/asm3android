@@ -12,8 +12,7 @@ app.use(bodyParser.json());
 app.use(cors())
 
 const io = new Server(server);
-const PORT = 8888;
-
+const PORT = process.env.PORT || 8888;
 server.listen(PORT, () => {
     console.log("Server's Listening on Port 8888")
 });
