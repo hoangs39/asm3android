@@ -45,13 +45,14 @@ const userSchema = new mongoose.Schema({
     },
     name: {
         type: String,
-        required: true,
+
     },
     role: {
         type: String,
     },
     password: {
         type: String,
+        default: "",
     },
     description: {
         type: String,
@@ -59,7 +60,7 @@ const userSchema = new mongoose.Schema({
     gender: {
         type: String,
         enum: ["Male", "Female", "Non-binary"],
-        default: "surprise",
+        default: "Non-binary",
     },
     avatarImg: {
         data: Buffer,
@@ -67,14 +68,16 @@ const userSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["available", "rejected", "accepted"],
-        default: "available",
+        enum: ["normal", "premium"],
+        default: "normal",
     },
     latitude: {
         type: String,
+        default: "0.0000",
     },
     longitude : {
         type: String,
+        default: "0.0000",
     },
     age: {
         type: String,
@@ -86,11 +89,10 @@ const users = new mongoose.model('User', userSchema, 'Users') // name - schema -
 const preferenceSchema = new mongoose.Schema({
     age: {
         type: String,
-        unique: true,
     },
     email: {
         type: String,
-        required: true,
+        unique: true,
     },
     partner: {
         type: String,
@@ -99,11 +101,9 @@ const preferenceSchema = new mongoose.Schema({
     },
     interest: {
         type: String,
-        required: true,
     },
     program: {
         type: String,
-        required: true,
     },
 })
 
