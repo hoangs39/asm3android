@@ -217,7 +217,7 @@ app.post('/register', upload.single("image"), async (req, res) => {
             program,
         })
         await preference.save();
-        res.status(200).send("User Created!");
+        return res.status(200).json({ message: "Success: OK" });
     } catch (error) {
         console.log(error);
     }
