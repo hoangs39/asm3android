@@ -217,7 +217,7 @@ app.post('/register', upload.single("image"), async (req, res) => {
             program,
         })
         await preference.save();
-        return res.status(200).send("Success: OK");
+        return res.status(200).send();
     } catch (error) {
         console.log(error);
     }
