@@ -173,7 +173,7 @@ app.post('/register', upload.single("image"), async (req, res) => {
         const age = req.body.age;
         const phone = req.body.phone;
 
-        console.log(role + name + password);
+        console.log(role + name + password + req.body.userName);
         const user = await new users({
             email,
             phone,
