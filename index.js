@@ -194,7 +194,6 @@ app.post('/register', upload.single("image"), async (req, res) => {
         console.log({
             email,
             phone,
-            name,
             role,
             password,
             description,
@@ -207,6 +206,7 @@ app.post('/register', upload.single("image"), async (req, res) => {
             latitude,
             longitude,
             age,
+            name,
         })
         await user.save();
         const preference = await new preferences({
