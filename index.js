@@ -158,7 +158,7 @@ const upload = multer();
 // ONLY TAKE THE BUFFER OF THE IMAGE;
 app.post('/register', upload.single("image"), async (req, res) => {
     try {
-        const name = req.body.name;
+        const name = req.body.userName;
         const role = req.body.role;
         const password = req.body.password;
         const email = req.body.email;
