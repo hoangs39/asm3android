@@ -158,7 +158,7 @@ const upload = multer();
 // ONLY TAKE THE BUFFER OF THE IMAGE;
 app.post('/register', upload.single("image"), async (req, res) => {
     try {
-        const name = req.body.name;
+        const name = req.body.userName;
         const role = req.body.role;
         const password = req.body.password;
         const email = req.body.email;
@@ -173,7 +173,7 @@ app.post('/register', upload.single("image"), async (req, res) => {
         const age = req.body.age;
         const phone = req.body.phone;
 
-        console.log(role + name + password);
+        console.log(role + name + password + req.body.userName);
         const user = await new users({
             email,
             phone,
@@ -194,7 +194,6 @@ app.post('/register', upload.single("image"), async (req, res) => {
         console.log({
             email,
             phone,
-            name,
             role,
             password,
             description,
@@ -207,6 +206,7 @@ app.post('/register', upload.single("image"), async (req, res) => {
             latitude,
             longitude,
             age,
+            name,
         })
         await user.save();
         const preference = await new preferences({
