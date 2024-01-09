@@ -270,6 +270,7 @@ app.post("/getProfile", async (req, res) => {
 
         if (user != null) {
             res.status(200).send({user: user, preference: preference});
+            console.log({user: user, preference: preference});
         } else {
             res.status(404).send("Not Allowed!");
         }
