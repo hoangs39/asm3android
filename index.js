@@ -96,8 +96,8 @@ const preferenceSchema = new mongoose.Schema({
     },
     partner: {
         type: String,
-        enum: ["Male", "Female", "Non-binary"],
-        default: "Non-binary",
+        enum: ["Male", "Female", "Surprise me"],
+        default: "Surprise me",
     },
     interest: {
         type: String,
@@ -261,9 +261,9 @@ app.post("/authenticationemail", async (req, res) => {
 // 3. Profile: => image, name, age, interest, program
 //done
 // SEARCH USER, PREFERENCES BY THEIR EMAILS
-app.get("/getProfile/:email", async (req, res) => {
+app.post("/getProfile", async (req, res) => {
     try {
-        const email = req.params.email;
+        const email = req.body.email;
         console.log(email);
         const user = await users.findOne({ email});
         const preference = await preferences.findOne({ email });
