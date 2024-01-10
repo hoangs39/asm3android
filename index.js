@@ -363,7 +363,9 @@ app.put('/updateUserLocation/:email', async (req, res) => {
 // ALERT: THE MATCHES BETWEEN 2 PEOPLE ONLY CREATED ONCE
 app.get('/findMates/:email', async (req, res) => {
     try {
+        const userEmail = req.body.email;
         const email = req.params.email;
+        const user = await users.findOne({ email: userEmail });
         const found_preference = await preferences.findOne({email});
         if (found_preference != null) {
             const matched_partner = found_preference.partner;
@@ -375,7 +377,11 @@ app.get('/findMates/:email', async (req, res) => {
             if(arrayIds.length != 0){
                 arrayIds.map(async (m) => {
                     const mate = await users.findOne({ email: m.email });
-                    mates.push(mate);
+                    if (((parseFloat(mate.longitude) - parseFloat(user.longitude)) < 0.2) && ((parseFloat(mate.latitude) - parseFloat(user.latitude)) < 0.2))
+                    {
+                        mates.push(mate);
+                    }
+                    
 
                     // SEARCH FOR ANY PREVIOUS CREATED MATCHES, IF NOT FOUND, THEN CREATE A NEW ONE
                     const foundMatches = await matches.findOne({ participants: { $elemMatch: { $eq: email, $eq: m.email } } });
