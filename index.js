@@ -331,9 +331,9 @@ app.put('/updateUserProfile/:email', async (req, res) => {
 // get current location
 //done
 //UPDATE LONGITUDE AND LATITUDE
-app.put('/updateUserLocation/:email', async (req, res) => {
+app.post('/updateUserLocation', async (req, res) => {
     try {
-        const email = req.params.email;
+        const email = req.body.email;
         const latitude = req.body.latitude;
         const longitude = req.body.longitude;
 
