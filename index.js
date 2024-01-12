@@ -361,12 +361,11 @@ app.post('/updateUserLocation', async (req, res) => {
 // THEN USE THE EMAIL ATTRIBUTE INSIDE THE ACCOUNT TO FIND USER AND PUSH INTO AN ARRAY FOR RESULTS AS WELL AS CREATING
 // MATCHES WITH AN EMPTY STRING STATUS ARRAY, SO WHEN ONE SWIPE RIGHT, I PUSH AN "OK" STATUS STRING INTO THEM;
 // ALERT: THE MATCHES BETWEEN 2 PEOPLE ONLY CREATED ONCE
-app.get('/findMates/:email', async (req, res) => {
+app.post('/findMates', async (req, res) => {
     try {
         const userEmail = req.body.email;
-        const email = req.params.email;
         const user = await users.findOne({ email: userEmail });
-        const found_preference = await preferences.findOne({email});
+        const found_preference = await preferences.findOne({email: userEmail});
         if (found_preference != null) {
             const matched_partner = found_preference.partner;
             const matched_program = found_preference.program;
