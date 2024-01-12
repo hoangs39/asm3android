@@ -318,7 +318,7 @@ app.post('/updateUserProfile', async (req, res) => {
             new: false,
         })
         if (updated_user != null) {
-            res.status(200).send("Updated Completely")
+            return res.status(200).json({ message: 'Updated Completely' });
         } else {
             res.status(500).send("Failed To Update!")
         }
