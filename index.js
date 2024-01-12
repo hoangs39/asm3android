@@ -373,28 +373,30 @@ app.post('/findMates', async (req, res) => {
             const matched_age = found_preference.age;
             const mates = [];
             const arrayIds = await preferences.find({ partner: matched_partner, age: matched_age, program: matched_program, interest: matched_interest, });
-            if(arrayIds.length != 0){
-                arrayIds.map(async (m) => {
+            if (arrayIds.length != 0) {
+                // Use Promise.all to wait for all async operations to complete
+                await Promise.all(arrayIds.map(async (m) => {
                     const mate = await users.findOne({ email: m.email });
-                    if (((parseFloat(mate.longitude) - parseFloat(user.longitude)) < 0.2) && ((parseFloat(mate.latitude) - parseFloat(user.latitude)) < 0.2))
-                    {
+                    if (((parseFloat(mate.longitude) - parseFloat(user.longitude)) < 0.2) && ((parseFloat(mate.latitude) - parseFloat(user.latitude)) < 0.2)) {
                         mates.push(mate);
                     }
-                    
+                }));
 
-                    // SEARCH FOR ANY PREVIOUS CREATED MATCHES, IF NOT FOUND, THEN CREATE A NEW ONE
-                    const foundMatches = await matches.findOne({ participants: { $elemMatch: { $eq: email, $eq: m.email } } });
-                    if (foundMatches == null) {
-                        const match = new matches({
-                            participants: [email, m.email],
-                            status: [],
-                            conversation: [],
-                        });
-                        await match.save();
-                    };
-                    res.status(200).send(mates);
-                });
-            }else{
+                // SEARCH FOR ANY PREVIOUS CREATED MATCHES, IF NOT FOUND, THEN CREATE A NEW ONE
+                // const foundMatches = await matches.findOne({ participants: { $elemMatch: { $eq: email, $eq: m.email } } });
+                // if (foundMatches == null) {
+                //     const match = new matches({
+                //         participants: [email, m.email],
+                //         status: [],
+                //         conversation: [],
+                //     });
+                //     await match.save();
+                // };
+
+                // Send mates as a response
+                res.status(200).send(mates);
+                console.log(mates);
+            } else {
                 res.status(404).send("Not Found!");
             }
         } else {
@@ -402,6 +404,7 @@ app.post('/findMates', async (req, res) => {
         }
     } catch (error) {
         console.log(error);
+        res.status(500).send("Internal Server Error");
     }
 });
 //done
