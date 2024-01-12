@@ -283,9 +283,9 @@ app.post("/getProfile", async (req, res) => {
 
 //done
 // UPDATE THE PROFILE [USER, PREFERNCES] FOR USER
-app.put('/updateUserProfile/:email', async (req, res) => {
+app.post('/updateUserProfile', async (req, res) => {
     try {
-        const email = req.params.email;
+        const email = req.body.email;
         const phone = req.body.phone;
         const name = req.body.name;
         const description = req.body.description;
