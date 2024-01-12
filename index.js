@@ -446,9 +446,9 @@ app.post('/matches', async (req, res) => {
                 const updated_match = await matches.findOneAndUpdate({ participants: { $elemMatch: { $eq: oemail, $eq: email } } }, {
                     status: newStatus,
                 }, { new: false },);
-                res.status(200).send("Updated Status");
+                return res.status(200).json({ message: 'Updated Completely' });
             }else{
-                res.status(200).send("Match!");
+                return res.status(200).json({ message: 'Match!' });
             }
         } else {
             res.status(404).send("Not Found!");
