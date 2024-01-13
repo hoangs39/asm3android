@@ -392,12 +392,12 @@ app.get('/findMates', async (req, res) => {
                         // SEARCH FOR ANY PREVIOUS CREATED MATCHES, IF NOT FOUND, THEN CREATE A NEW ONE
                         const foundMatches = await matches.findOne({ participants: { $elemMatch: { $eq: email, $eq: m.email } } });
                         if (foundMatches == null) {
-                            // const match = new matches({
-                            //     participants: [email, m.email],
-                            //     status: [],
-                            //     conversation: [],
-                            // });
-                            // await match.save();
+                            const match = new matches({
+                                participants: [email, m.email],
+                                status: [],
+                                conversation: [],
+                            });
+                            await match.save();
                             // console.log(match);
                             mates.push(mate);
                         }else{
