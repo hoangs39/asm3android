@@ -154,6 +154,7 @@ const upload = multer();
 // await newUser.save();
 // console.log(newUser);
 
+
 //MULTER FOR GETTING IMAGE;
 // ONLY TAKE THE BUFFER OF THE IMAGE;
 app.post('/register', upload.single("image"), async (req, res) => {
@@ -183,8 +184,8 @@ app.post('/register', upload.single("image"), async (req, res) => {
             description,
             gender,
             avatarImg: {
-                    data: req.file.buffer,
-                    contentType: req.file.mimetype,
+                data: req.file.buffer,
+                contentType: req.file.mimetype,
             },
             status,
             latitude,
@@ -280,7 +281,6 @@ app.post("/getProfile", async (req, res) => {
 });
 
 
-
 //done
 // UPDATE THE PROFILE [USER, PREFERNCES] FOR USER
 app.put('/updateUserProfile/:email', async (req, res) => {
@@ -361,41 +361,57 @@ app.put('/updateUserLocation/:email', async (req, res) => {
 // THEN USE THE EMAIL ATTRIBUTE INSIDE THE ACCOUNT TO FIND USER AND PUSH INTO AN ARRAY FOR RESULTS AS WELL AS CREATING
 // MATCHES WITH AN EMPTY STRING STATUS ARRAY, SO WHEN ONE SWIPE RIGHT, I PUSH AN "OK" STATUS STRING INTO THEM;
 // ALERT: THE MATCHES BETWEEN 2 PEOPLE ONLY CREATED ONCE
-app.get('/findMates/:email', async (req, res) => {
+app.get('/findMates', async (req, res) => {
     try {
-        const userEmail = req.body.email;
-        const email = req.params.email;
-        const user = await users.findOne({ email: userEmail });
+        const email = req.body.email;
+        // const email = req.params.email;
+        const user = await users.findOne({ email });
         const found_preference = await preferences.findOne({email});
+
+
         if (found_preference != null) {
+
+
             const matched_partner = found_preference.partner;
             const matched_program = found_preference.program;
             const matched_interest = found_preference.interest;
             const matched_age = found_preference.age;
+
+
             const mates = [];
+
+
             const arrayIds = await preferences.find({ partner: matched_partner, age: matched_age, program: matched_program, interest: matched_interest, });
             if(arrayIds.length != 0){
                 arrayIds.map(async (m) => {
                     const mate = await users.findOne({ email: m.email });
                     if (((parseFloat(mate.longitude) - parseFloat(user.longitude)) < 0.2) && ((parseFloat(mate.latitude) - parseFloat(user.latitude)) < 0.2))
                     {
-                        mates.push(mate);
-                    }
-                    
+                        
+                        // SEARCH FOR ANY PREVIOUS CREATED MATCHES, IF NOT FOUND, THEN CREATE A NEW ONE
+                        const foundMatches = await matches.findOne({ participants: { $elemMatch: { $eq: email, $eq: m.email } } });
+                        if (foundMatches == null) {
+                            const match = new matches({
+                                participants: [email, m.email],
+                                status: [],
+                                conversation: [],
+                            });
+                            await match.save();
+                            console.log(match);
+                            mates.push(mate);
+                        }else{
+                            if (!foundMatches.status.includes(email)){
+                                mates.push(mate);
+                            }
+                            
+                        }
 
-                    // SEARCH FOR ANY PREVIOUS CREATED MATCHES, IF NOT FOUND, THEN CREATE A NEW ONE
-                    const foundMatches = await matches.findOne({ participants: { $elemMatch: { $eq: email, $eq: m.email } } });
-                    if (foundMatches == null) {
-                        const match = new matches({
-                            participants: [email, m.email],
-                            status: [],
-                            conversation: [],
-                        });
-                        await match.save();
-                    };
+                    }
                     res.status(200).send(mates);
                 });
-            }else{
+            }
+            
+            else{
                 res.status(404).send("Not Found!");
             }
         } else {
@@ -429,6 +445,43 @@ app.get('/findMatches/:email', async (req, res) => {
     }
 });
 
+app.get('/findMatches/:email', async (req, res) => {
+    try {
+        const email = req.params.email;
+        const foundMatches = await matches.find({ participants: { $elemMatch: { $eq: email } } });
+        console.log(foundMatches);
+        if (foundMatches != null) {
+            const realMatches = [];
+            foundMatches.map(m => {
+                if (m.status.length == 2) {
+                    realMatches.push(m)
+                }
+            })
+            res.status(200).send(realMatches);
+        } else {
+            res.status(404).send("Not Found!");
+        }
+    } catch (error) {
+        console.log(error);
+    }
+});
+
+
+app.get('/findMatch', async (req, res) => {
+    try {
+        const oemail = req.params.oemail;
+        const email = req.params.email;
+        const foundMatches = await matches.findOne({ participants: { $elemMatch: { $eq: email, $eq: oemail } } });
+        if (foundMatches != null) {
+            res.status(200).send(foundMatches);
+        } else {
+            res.status(404).send("Not Found!");
+        }
+    } catch (error) {
+        console.log(error);
+    }
+});
+
 //done
 //SEARCH FOR MATCH THAT CONTAIN BOTH EMAIL OF MATE AND USER THEN PUSH "OK" STATUS INTO THE STATUS ARRAY ATTRIBUTE
 // IF ITS LENGTH IS SMALLER THAN 2.
@@ -440,7 +493,7 @@ app.post('/matches', async (req, res) => {
         if (foundMatches != null) {
             if(foundMatches.status.length < 2){
                 const newStatus= [...foundMatches.status];
-                newStatus.push("OK");
+                newStatus.push(email);
                 const updated_match = await matches.findOneAndUpdate({ participants: { $elemMatch: { $eq: oemail, $eq: email } } }, {
                     status: newStatus,
                 }, { new: false },);
