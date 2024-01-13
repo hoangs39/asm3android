@@ -453,9 +453,10 @@ app.post('/lookMatches/:email', async (req, res) => {
         const foundMatches = await matches.find({ participants: { $elemMatch: { $eq: email } } });
         console.log(foundMatches);
         if (foundMatches != null) {
-            const realMatches = [];
+            const realMatches = [""];
             foundMatches.map(m => {
                 if (m.status.length == 2) {
+                    realMatches.pop();
                     if(m.status[0] !== email){
                         realMatches.push(m.status[0]);
                     } else if (m.status[1] !== email){
