@@ -361,7 +361,7 @@ app.post('/updateUserLocation', async (req, res) => {
 // THEN USE THE EMAIL ATTRIBUTE INSIDE THE ACCOUNT TO FIND USER AND PUSH INTO AN ARRAY FOR RESULTS AS WELL AS CREATING
 // MATCHES WITH AN EMPTY STRING STATUS ARRAY, SO WHEN ONE SWIPE RIGHT, I PUSH AN "OK" STATUS STRING INTO THEM;
 // ALERT: THE MATCHES BETWEEN 2 PEOPLE ONLY CREATED ONCE
-app.get('/findMates', async (req, res) => {
+app.post('/findMates', async (req, res) => {
     try {
         const email = req.body.email;
         // const email = req.params.email;
@@ -384,7 +384,7 @@ app.get('/findMates', async (req, res) => {
             const arrayIds = await preferences.find({ partner: matched_partner, age: matched_age, program: matched_program, interest: matched_interest, });
             if (arrayIds.length != 0) {
                 // Use Promise.all to wait for all async operations to complete
-                arrayIds.map(async (m) => {
+                await Promise.all(arrayIds.map(async (m) => {
                     const mate = await users.findOne({ email: m.email });
                     if (((parseFloat(mate.longitude) - parseFloat(user.longitude)) < 0.2) && ((parseFloat(mate.latitude) - parseFloat(user.latitude)) < 0.2))
                     {
@@ -409,7 +409,7 @@ app.get('/findMates', async (req, res) => {
 
                     }
                     res.status(200).send(mates);
-                });
+                }));
             }
             
             else{
@@ -447,7 +447,7 @@ app.get('/findMatches/:email', async (req, res) => {
     }
 });
 
-app.get('/lookMatches/:email', async (req, res) => {
+app.post('/lookMatches/:email', async (req, res) => {
     try {
         const email = req.params.email;
         const foundMatches = await matches.find({ participants: { $elemMatch: { $eq: email } } });
