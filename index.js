@@ -1,8 +1,8 @@
 // ==== awesomechat.js ====
 const express = require('express');
 const app = express();
-const server = require('http').createServer(app);
-const {Server} = require('socket.io');
+// const server = require('http').createServer(app);
+// const {Server} = require('socket.io');
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -11,9 +11,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors())
 
-const io = new Server(server);
+// const io = new Server(server);
 const PORT = process.env.PORT || 8888;
-server.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log("Server's Listening on Port 8888")
 });
 
@@ -604,84 +604,84 @@ app.get('/findMate/:name', async (req, res) => {
 
 // CHATTING FEATURE
 // SOCKET CONNECT WHEN USER GO TO HOME ACTIVITY
-io.on("connect", (socket) => {
-    console.log("User connected:", socket.id);
+// io.on("connect", (socket) => {
+//     console.log("User connected:", socket.id);
 
-    // socket.on('message', (ms) => {
-    //     io.emit('message', ms)
-    // })
+//     // socket.on('message', (ms) => {
+//     //     io.emit('message', ms)
+//     // })
 
-    // WHEN THE USER CLICK ON ONE MATCH IN THE MATCHES LIST, THE FE WILL CALL THE JOINMATCHROOM
-    // AND THE SERVER LISTEN TO MAKE THE SOCKET JOIN A SPECIFIC ROOM.
-    socket.on("joinMatchRoom", (roomMatchId) => {
-        console.log("joined " + roomMatchId);
-        socket.join(roomMatchId);
-    });
+//     // WHEN THE USER CLICK ON ONE MATCH IN THE MATCHES LIST, THE FE WILL CALL THE JOINMATCHROOM
+//     // AND THE SERVER LISTEN TO MAKE THE SOCKET JOIN A SPECIFIC ROOM.
+//     socket.on("joinMatchRoom", (roomMatchId) => {
+//         console.log("joined " + roomMatchId);
+//         socket.join(roomMatchId);
+//     });
 
-    // WHEN THE USER SEND THE MESSAGE THE FE EMIT THE EVENT OF SENDMESSAGE TO SEND MESSAGE DATA AND MATCHID
-    socket.on("sendMessage", async (data) => {
-        console.log(data);
-        try {
-            const matchId = data.matchId;
-            const match = await matches.findById(matchId);
+//     // WHEN THE USER SEND THE MESSAGE THE FE EMIT THE EVENT OF SENDMESSAGE TO SEND MESSAGE DATA AND MATCHID
+//     socket.on("sendMessage", async (data) => {
+//         console.log(data);
+//         try {
+//             const matchId = data.matchId;
+//             const match = await matches.findById(matchId);
 
-            if (match) {
-                const { sender, message } = data;
-                // STORE DATA TO MATCH IN DB
-                match.conversation.push({ sender, message });
-                await match.save();
-                // THEN EMIT THE CONTENT OF SENT DATA TO DISPLAY BACK ON FE VIA THE EVENT OF MESSAGERECEIVED
-                io.to(matchId).emit("messageReceived", { sender, message });
-            }
-        } catch (error) {
-            console.error("Error sending message:", error.message);
-        }
-    });
+//             if (match) {
+//                 const { sender, message } = data;
+//                 // STORE DATA TO MATCH IN DB
+//                 match.conversation.push({ sender, message });
+//                 await match.save();
+//                 // THEN EMIT THE CONTENT OF SENT DATA TO DISPLAY BACK ON FE VIA THE EVENT OF MESSAGERECEIVED
+//                 io.to(matchId).emit("messageReceived", { sender, message });
+//             }
+//         } catch (error) {
+//             console.error("Error sending message:", error.message);
+//         }
+//     });
 
-    // socket.on("connectToQueue", () => {
-    //     queueMatch.push({ socket });
-    //     if (queueMatch.length >= 2) {
-    //         const user1 = queueMatch.shift();
-    //         const user2 = queueMatch.shift();
+//     // socket.on("connectToQueue", () => {
+//     //     queueMatch.push({ socket });
+//     //     if (queueMatch.length >= 2) {
+//     //         const user1 = queueMatch.shift();
+//     //         const user2 = queueMatch.shift();
 
-    //         const match = new Match({
-    //             participants: [user1.socket.id, user2.socket.id],
-    //             status: "available",
-    //             conversation: [],
-    //         });
+//     //         const match = new Match({
+//     //             participants: [user1.socket.id, user2.socket.id],
+//     //             status: "available",
+//     //             conversation: [],
+//     //         });
 
-    //         match.save((err) => {
-    //             if (err) {
-    //                 console.error("Error creating match:", err);
-    //             } else {
-    //                 io.to(user1.socket.id).emit("matchFound", { matchId: match._id });
-    //                 io.to(user2.socket.id).emit("matchFound", { matchId: match._id });
+//     //         match.save((err) => {
+//     //             if (err) {
+//     //                 console.error("Error creating match:", err);
+//     //             } else {
+//     //                 io.to(user1.socket.id).emit("matchFound", { matchId: match._id });
+//     //                 io.to(user2.socket.id).emit("matchFound", { matchId: match._id });
 
-    //                 // Join private chat room
-    //                 io.in(match._id).socketsJoin(match._id);
-    //             }
-    //         });
-    //     }
-    // });
+//     //                 // Join private chat room
+//     //                 io.in(match._id).socketsJoin(match._id);
+//     //             }
+//     //         });
+//     //     }
+//     // });
 
-    // WHEN THE USER ESCAPE OUT OF THE CHAT WITH OTHER USER, IT CALLS DISCONNECT TO LEFT THE ROOM THAT USER'S SOCKET
-    // HAS JOINED IN THE SECOND STEP.
-    socket.on("disconnect", () => {
-        console.log("User disconnected:", socket.id);
-        // const index = queueMatch.findIndex((entry) => entry.socket === socket);
-        // if (index !== -1) {
-        //     queueMatch.splice(index, 1);
-        // }
+//     // WHEN THE USER ESCAPE OUT OF THE CHAT WITH OTHER USER, IT CALLS DISCONNECT TO LEFT THE ROOM THAT USER'S SOCKET
+//     // HAS JOINED IN THE SECOND STEP.
+//     socket.on("disconnect", () => {
+//         console.log("User disconnected:", socket.id);
+//         // const index = queueMatch.findIndex((entry) => entry.socket === socket);
+//         // if (index !== -1) {
+//         //     queueMatch.splice(index, 1);
+//         // }
 
-        // Leave private chat room on disconnect
-        const rooms = io.sockets.adapter.rooms;
-        for (const roomId in rooms) {
-            if (rooms[roomId].sockets[socket.id]) {
-                socket.leave(roomId);
-            }
-        }
-    });
-})
+//         // Leave private chat room on disconnect
+//         const rooms = io.sockets.adapter.rooms;
+//         for (const roomId in rooms) {
+//             if (rooms[roomId].sockets[socket.id]) {
+//                 socket.leave(roomId);
+//             }
+//         }
+//     });
+// })
 
 
 
