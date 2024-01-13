@@ -384,7 +384,7 @@ app.get('/findMates', async (req, res) => {
             const arrayIds = await preferences.find({ partner: matched_partner, age: matched_age, program: matched_program, interest: matched_interest, });
             if (arrayIds.length != 0) {
                 // Use Promise.all to wait for all async operations to complete
-                arrayIds.map(async (m) => {
+                await Promise.all(arrayIds.map(async (m) => {
                     const mate = await users.findOne({ email: m.email });
                     if (((parseFloat(mate.longitude) - parseFloat(user.longitude)) < 0.2) && ((parseFloat(mate.latitude) - parseFloat(user.latitude)) < 0.2))
                     {
@@ -392,13 +392,13 @@ app.get('/findMates', async (req, res) => {
                         // SEARCH FOR ANY PREVIOUS CREATED MATCHES, IF NOT FOUND, THEN CREATE A NEW ONE
                         const foundMatches = await matches.findOne({ participants: { $elemMatch: { $eq: email, $eq: m.email } } });
                         if (foundMatches == null) {
-                            const match = new matches({
-                                participants: [email, m.email],
-                                status: [],
-                                conversation: [],
-                            });
-                            await match.save();
-                            console.log(match);
+                            // const match = new matches({
+                            //     participants: [email, m.email],
+                            //     status: [],
+                            //     conversation: [],
+                            // });
+                            // await match.save();
+                            // console.log(match);
                             mates.push(mate);
                         }else{
                             if (!foundMatches.status.includes(email)){
@@ -409,7 +409,7 @@ app.get('/findMates', async (req, res) => {
 
                     }
                     res.status(200).send(mates);
-                });
+                }));
             }
             
             else{
