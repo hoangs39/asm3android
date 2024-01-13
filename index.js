@@ -447,9 +447,9 @@ app.get('/findMatches/:email', async (req, res) => {
     }
 });
 
-app.post('/lookMatches/:email', async (req, res) => {
+app.post('/lookMatches', async (req, res) => {
     try {
-        const email = req.params.email;
+        const email = req.body.email;
         const foundMatches = await matches.find({ participants: { $elemMatch: { $eq: email } } });
         console.log(foundMatches);
         if (foundMatches != null) {
