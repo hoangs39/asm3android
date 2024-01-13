@@ -283,9 +283,9 @@ app.post("/getProfile", async (req, res) => {
 
 //done
 // UPDATE THE PROFILE [USER, PREFERNCES] FOR USER
-app.put('/updateUserProfile/:email', async (req, res) => {
+app.post('/updateUserProfile', async (req, res) => {
     try {
-        const email = req.params.email;
+        const email = req.body.email;
         const phone = req.body.phone;
         const name = req.body.name;
         const description = req.body.description;
@@ -318,7 +318,7 @@ app.put('/updateUserProfile/:email', async (req, res) => {
             new: false,
         })
         if (updated_user != null) {
-            res.status(200).send("Updated Completely")
+            return res.status(200).json({ message: 'Updated Completely' });
         } else {
             res.status(500).send("Failed To Update!")
         }
@@ -331,9 +331,9 @@ app.put('/updateUserProfile/:email', async (req, res) => {
 // get current location
 //done
 //UPDATE LONGITUDE AND LATITUDE
-app.put('/updateUserLocation/:email', async (req, res) => {
+app.post('/updateUserLocation', async (req, res) => {
     try {
-        const email = req.params.email;
+        const email = req.body.email;
         const latitude = req.body.latitude;
         const longitude = req.body.longitude;
 
@@ -382,8 +382,9 @@ app.get('/findMates', async (req, res) => {
 
 
             const arrayIds = await preferences.find({ partner: matched_partner, age: matched_age, program: matched_program, interest: matched_interest, });
-            if(arrayIds.length != 0){
-                arrayIds.map(async (m) => {
+            if (arrayIds.length != 0) {
+                // Use Promise.all to wait for all async operations to complete
+                await Promise.all(arrayIds.map(async (m) => {
                     const mate = await users.findOne({ email: m.email });
                     if (((parseFloat(mate.longitude) - parseFloat(user.longitude)) < 0.2) && ((parseFloat(mate.latitude) - parseFloat(user.latitude)) < 0.2))
                     {
@@ -408,7 +409,7 @@ app.get('/findMates', async (req, res) => {
 
                     }
                     res.status(200).send(mates);
-                });
+                }));
             }
             
             else{
@@ -419,6 +420,7 @@ app.get('/findMates', async (req, res) => {
         }
     } catch (error) {
         console.log(error);
+        res.status(500).send("Internal Server Error");
     }
 });
 //done
@@ -497,9 +499,9 @@ app.post('/matches', async (req, res) => {
                 const updated_match = await matches.findOneAndUpdate({ participants: { $elemMatch: { $eq: oemail, $eq: email } } }, {
                     status: newStatus,
                 }, { new: false },);
-                res.status(200).send("Updated Status");
+                return res.status(200).json({ message: 'Updated Completely' });
             }else{
-                res.status(200).send("Match!");
+                return res.status(200).json({ message: 'Match!' });
             }
         } else {
             res.status(404).send("Not Found!");
