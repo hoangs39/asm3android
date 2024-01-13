@@ -384,7 +384,7 @@ app.get('/findMates', async (req, res) => {
             const arrayIds = await preferences.find({ partner: matched_partner, age: matched_age, program: matched_program, interest: matched_interest, });
             if (arrayIds.length != 0) {
                 // Use Promise.all to wait for all async operations to complete
-                await Promise.all(arrayIds.map(async (m) => {
+                arrayIds.map(async (m) => {
                     const mate = await users.findOne({ email: m.email });
                     if (((parseFloat(mate.longitude) - parseFloat(user.longitude)) < 0.2) && ((parseFloat(mate.latitude) - parseFloat(user.latitude)) < 0.2))
                     {
@@ -409,7 +409,7 @@ app.get('/findMates', async (req, res) => {
 
                     }
                     res.status(200).send(mates);
-                }));
+                });
             }
             
             else{
