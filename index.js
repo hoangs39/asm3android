@@ -447,7 +447,7 @@ app.get('/findMatches/:email', async (req, res) => {
     }
 });
 
-app.get('/findMatches/:email', async (req, res) => {
+app.get('/lookMatches/:email', async (req, res) => {
     try {
         const email = req.params.email;
         const foundMatches = await matches.find({ participants: { $elemMatch: { $eq: email } } });
@@ -456,7 +456,11 @@ app.get('/findMatches/:email', async (req, res) => {
             const realMatches = [];
             foundMatches.map(m => {
                 if (m.status.length == 2) {
-                    realMatches.push(m)
+                    if(m.status[0] !== email){
+                        realMatches.push(m.status[0]);
+                    } else if (m.status[1] !== email){
+                        realMatches.push(m.status[1]);
+                    }
                 }
             })
             res.status(200).send(realMatches);
