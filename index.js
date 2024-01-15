@@ -333,26 +333,24 @@ app.post('/updateUserProfile', async (req, res) => {
 //UPDATE LONGITUDE AND LATITUDE
 app.post('/updateUserLocation', async (req, res) => {
     try {
-        const email = req.body.email;
-        const latitude = req.body.latitude;
-        const longitude = req.body.longitude;
+        const { email, latitude, longitude } = req.body;
 
-        console.log(latitude);
+        const updated_user = await users.findOneAndUpdate(
+            { email },
+            { latitude, longitude },
+            { new: true } // Return the modified document
+        );
 
-        // const found_user = users.findOne({ name: userName });
-        const updated_user = await users.findOneAndUpdate({ email }, {
-            latitude,
-            longitude,
-        }, { new: false },);
-        if (updated_user != null) {
-            res.status(200).send("Updated Completely")
+        if (updated_user !== null) {
+            res.status(200).send("Updated Successfully");
         } else {
-            res.status(500).send("Failed To Update!")
+            res.status(500).send("Failed To Update!");
         }
     } catch (error) {
-        console.log(error);
+        console.error(error);
+        res.status(500).send("Internal Server Error");
     }
-})
+});
 
 // list of Mates: "filtered by the location, preferences, "
 // {email, name, description, image, longitude, latitude, gender, partner, program, interest, status, role, age;}
