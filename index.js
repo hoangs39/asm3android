@@ -379,7 +379,7 @@ app.post('/findMates', async (req, res) => {
             const mates = [];
 
 
-            const arrayIds = await preferences.find({ gender: matched_partner, age: matched_age, program: matched_program, interest: matched_interest, });
+            const arrayIds = await preferences.find({ partner: matched_partner, age: matched_age, program: matched_program, interest: matched_interest, });
             if (arrayIds.length != 0) {
                 // Use Promise.all to wait for all async operations to complete
                 await Promise.all(arrayIds.map(async (m) => {
