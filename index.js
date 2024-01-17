@@ -366,50 +366,45 @@ app.post('/findMates', async (req, res) => {
         const user = await users.findOne({ email });
         const found_preference = await preferences.findOne({email});
 
-
         if (found_preference != null) {
-
 
             const matched_partner = found_preference.partner;
             const matched_program = found_preference.program;
             const matched_interest = found_preference.interest;
-            const matched_age = found_preference.age;
-
 
             const mates = [];
 
-
-            const arrayIds = await preferences.find({ partner: matched_partner, age: matched_age, program: matched_program, interest: matched_interest, });
+            const arrayIds = await preferences.find({ program: matched_program, interest: matched_interest, });
             if (arrayIds.length != 0) {
                 // Use Promise.all to wait for all async operations to complete
-                await Promise.all(arrayIds.map(async (m) => {
-                    const mate = await users.findOne({ email: m.email });
+                Promise.all(
+                arrayIds.map(async (m) => {
+                    const mate = await users.findOne({email : m.email});
                     if (((parseFloat(mate.longitude) - parseFloat(user.longitude)) < 0.2) && ((parseFloat(mate.latitude) - parseFloat(user.latitude)) < 0.2))
                     {
-                        
-                        // SEARCH FOR ANY PREVIOUS CREATED MATCHES, IF NOT FOUND, THEN CREATE A NEW ONE
-                        const foundMatches = await matches.findOne({ participants: { $elemMatch: { $eq: email, $eq: m.email } } });
-                        if (foundMatches == null) {
+                            
+                        if((mate.gender === matched_partner) && (mate.email !== user.email)){
+                            
+                            const foundMatches = await matches.findOne({ participants: { $elemMatch: { $eq: email, $eq: m.email } } });
+                            if (foundMatches == null) {
+                            mates.push(mate)
                             const match = new matches({
                                 participants: [email, m.email],
                                 status: [],
                                 conversation: [],
                             });
                             await match.save();
-                            // console.log(match);
-                            mates.push(mate);
-                        }else{
-                            if (!foundMatches.status.includes(email)){
-                                mates.push(mate);
+                            }else{
+                                if(!foundMatches.status.includes(email)){
+                                    mates.push(mate)
+                                }
                             }
-                            
                         }
-
                     }
-                    res.status(200).send(mates);
-                }));
+                })).then(
+                    () => res.status(200).send(mates)
+                )
             }
-            
             else{
                 res.status(404).send("Not Found!");
             }
@@ -496,7 +491,7 @@ app.post('/matches', async (req, res) => {
         const email = req.body.email;
         const foundMatches = await matches.findOne({ participants: { $elemMatch: { $eq: oemail, $eq: email } } });
         if (foundMatches != null) {
-            if(foundMatches.status.length < 2){
+            if (foundMatches.status.length < 2 && !foundMatches.status.includes(email)){
                 const newStatus= [...foundMatches.status];
                 newStatus.push(email);
                 const updated_match = await matches.findOneAndUpdate({ participants: { $elemMatch: { $eq: oemail, $eq: email } } }, {
