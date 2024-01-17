@@ -402,7 +402,10 @@ app.post('/findMates', async (req, res) => {
                         }
                     }
                 })).then(
-                    () => res.status(200).send(mates)
+                    () => {
+                        res.status(200).send(mates);
+                        // console.log(mates);
+                    }
                 )
             }
             else{
@@ -446,7 +449,7 @@ app.post('/lookMatches', async (req, res) => {
         const foundMatches = await matches.find({ participants: { $elemMatch: { $eq: email } } });
         console.log(foundMatches);
         if (foundMatches != null) {
-            const realMatches = [""];
+            const realMatches = [];
             foundMatches.map(m => {
                 if (m.status.length == 2) {
                     realMatches.pop();
