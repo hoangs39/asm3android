@@ -385,7 +385,12 @@ app.post('/findMates', async (req, res) => {
                             
                         if((mate.gender === matched_partner) && (mate.email !== user.email)){
                             
-                            const foundMatches = await matches.findOne({ participants: { $elemMatch: { $eq: email, $eq: m.email } } });
+                            const foundMatches = await matches.findOne({
+                                $and: [
+                                    { "participants": { $elemMatch: { $eq: email } } },
+                                    { "participants": { $elemMatch: { $eq: m.email } } }
+                                ]
+                            });
                             if (foundMatches == null) {
                             mates.push(mate)
                             const match = new matches({
@@ -399,12 +404,14 @@ app.post('/findMates', async (req, res) => {
                                     mates.push(mate)
                                 }
                             }
+                            console.log(foundMatches);
+                            
                         }
                     }
                 })).then(
                     () => {
                         res.status(200).send(mates);
-                        // console.log(mates);
+                        // console.log(email);
                     }
                 )
             }
@@ -492,14 +499,30 @@ app.post('/matches', async (req, res) => {
     try {
         const oemail = req.body.oemail;
         const email = req.body.email;
-        const foundMatches = await matches.findOne({ participants: { $elemMatch: { $eq: oemail, $eq: email } } });
+        const foundMatches = await matches.findOne({
+            $and: [
+                { "participants": { $elemMatch: { $eq: email } } },
+                { "participants": { $elemMatch: { $eq: oemail } } }
+            ]
+        });
         if (foundMatches != null) {
             if (foundMatches.status.length < 2 && !foundMatches.status.includes(email)){
                 const newStatus= [...foundMatches.status];
                 newStatus.push(email);
-                const updated_match = await matches.findOneAndUpdate({ participants: { $elemMatch: { $eq: oemail, $eq: email } } }, {
+                const updated_match = await matches.findOneAndUpdate({
+                    $and: [
+                        { "participants": { $elemMatch: { $eq: email } } },
+                        { "participants": { $elemMatch: { $eq: oemail } } }
+                    ]
+                },
+                {
                     status: newStatus,
-                }, { new: false },);
+                }, 
+                { new: false },
+                );
+                // const updated_match = await matches.findOneAndUpdate({ participants: { $elemMatch: { $eq: oemail, $eq: email } } }, {
+                //     status: newStatus,
+                // }, { new: false },);
                 return res.status(200).json({ message: 'Updated Completely' });
             }else{
                 return res.status(200).json({ message: 'Match!' });
