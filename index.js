@@ -380,7 +380,7 @@ app.post('/findMates', async (req, res) => {
                 Promise.all(
                 arrayIds.map(async (m) => {
                     const mate = await users.findOne({email : m.email});
-                    if (((parseFloat(mate.longitude) - parseFloat(user.longitude)) < 0.2) && ((parseFloat(mate.latitude) - parseFloat(user.latitude)) < 0.2))
+                    if (((parseFloat(mate.longitude) - parseFloat(user.longitude)) < 0.8) && ((parseFloat(mate.latitude) - parseFloat(user.latitude)) < 0.8))
                     {
                             
                         if((mate.gender === matched_partner) && (mate.email !== user.email)){
