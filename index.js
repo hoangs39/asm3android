@@ -234,7 +234,7 @@ app.post("/authentication", async (req, res) => {
         const user = await users.findOne({ email, password });
         
         if (user != null) {
-            console.log(user);
+            // console.log(user);
             res.status(200).send(user);
         } else {
             res.status(404).send("Not Allowed!");
