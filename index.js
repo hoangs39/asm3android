@@ -459,13 +459,14 @@ app.post('/lookMatches', async (req, res) => {
             const realMatches = [];
             foundMatches.map(m => {
                 if (m.status.length == 2) {
-                    realMatches.pop();
                     if(m.status[0] !== email){
                         realMatches.push(m.status[0]);
                     } else if (m.status[1] !== email){
                         realMatches.push(m.status[1]);
                     }
+                    // realMatches.pop();
                 }
+
             })
             res.status(200).send(realMatches);
         } else {
